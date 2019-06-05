@@ -1,0 +1,79 @@
+      /* Get all the elements */
+const player = document.querySelector('.player');
+const video = player.querySelector('.viewer');
+const progress = player.querySelector('.progress');
+const progressBar = player.querySelector('.progress__filled');
+const toggle = player.querySelector('.toggle');
+//const volume = player.querySelector('.player__slider');
+const volume = player.querySelector('.volumeToggle');
+
+const toggleIconSvg = toggle.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'svg')[0];
+const toggleIconUse = toggleIconSvg.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'use')[0];
+
+/* Build out functions */
+function togglePlay() {
+
+  // Ternery operator - short hand
+
+  const method = video.paused ? 'play' : 'pause';
+  video[method]();
+
+  // Long hand
+
+  /* 
+  if (video.paused) {
+     video.play();
+  } else {
+     video.pause();
+  }
+  */
+}
+
+function toggleMute() {
+  const icon = video.muted ? '#audio' : '#mute';
+  this.querySelector('use').setAttribute('xlink:href', icon);
+
+  if (video.muted) {
+    video.muted = false;
+  } else {
+    video.muted = true;
+  }
+}
+
+function updateButton() {
+  const icon = this.paused ? '#play-iplayer' : '#pause';
+  toggleIconUse.setAttribute('xlink:href', icon);
+}
+
+function handleProgress() {
+  // Calculates how far along the video is to the whole duration.
+  // Multiply it by 100 so it's not 0.5% but 50%
+  const percent = video.currentTime / video.duration * 100;
+  progressBar.style.flexBasis = `${percent}%`;
+}
+
+function scrub(e) {
+  // offsetx is the px length of where ever you have clicked on the bar
+  // Divide by the whole width of the bar
+  // Multiply by the duration of the video
+  const scrubTime = e.offsetX / progress.offsetWidth * video.duration;
+  video.currentTime = scrubTime;
+}
+
+/* Hook up the event listeners */
+video.addEventListener('click', togglePlay);
+video.addEventListener('play', updateButton);
+video.addEventListener('pause', updateButton);
+video.addEventListener('timeupdate', handleProgress);
+toggle.addEventListener('click', togglePlay);
+volume.addEventListener('click', toggleMute);
+
+// Creating a flag
+let mousedown = false;
+
+progress.addEventListener('click', scrub);
+// Directly pass in a function or variable
+progress.addEventListener('mousemove', e => mousedown && scrub(e));
+progress.addEventListener('mousedown', () => mousedown = true);
+progress.addEventListener('mouseup', () => mousedown = false);
+      //# sourceURL=pen.js
